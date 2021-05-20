@@ -16,7 +16,7 @@ local GetSpellCooldown = GetSpellCooldown
 local GetCursorPosition = GetCursorPosition
 local next, unpack, floor, cos, sin, max, min = next, unpack, floor, cos, sin, max, min
 
-local isRetail = select(4, GetBuildInfo())>=20000
+local isRetail = select(4, GetBuildInfo())>=30000
 
 --====================================================================
 
