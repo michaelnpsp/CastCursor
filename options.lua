@@ -219,7 +219,7 @@ local CastCursorLDB = LibStub("LibDataBroker-1.1", true):NewDataObject("CastCurs
 		addon:ShowMenu()
 	end,
 	OnTooltipShow = function(tooltip)
-		tooltip:AddLine("CastCursor v" .. GetAddOnMetadata("CastCursor", "Version") )
+		tooltip:AddDoubleLine("CastCursor ",addon.versionToc)
 		tooltip:AddLine("Displays Cast & GCD rings around the cursor.", 1,1,1, true)
 		tooltip:AddLine("|cFFff4040Click|r to open configuration menu", 0.2, 1, 0.2)
 	end,
