@@ -140,11 +140,11 @@ local function CreateNumbersMenu(key, from, to, step, count)
 	return to>=page and menu or subMenu
 end
 
-function CreateNumber(text, key, min, max, step, count)
+local function CreateNumber(text, key, min, max, step, count)
 	return { notCheckable= true, hasArrow = true, text = text, menuList = CreateNumbersMenu(key, min, max, step, count) }
 end
 
-function CreateMedia(text, key, items)
+local function CreateMedia(text, key, items)
 	local sorted = {}
 	for key in pairs(items) do
 		sorted[#sorted+1] = key
@@ -159,6 +159,10 @@ end
 
 local function CreateTitle( text )
 	return { text = text, notCheckable= true, isTitle = true }
+end
+
+local function CreateSubMenu(text, subMenu)
+	return	{ text = text, notCheckable= true, hasArrow = true, menuList = subMenu }
 end
 
 local function ShowMenu( frame, menu, anchor )
@@ -196,8 +200,12 @@ local menu = {
 	CreateNumber( 'Radius', 'cursor;radius', 10, 50, 1, 20 ),
 	CreateNumber( 'Draw Layer', 'cursor;sublayer', 0, 1 ),
 	CreateMedia ( 'Ring Texture', 'cursor;texture', RINGS ),
+	CreateSubMenu( 'Visibility' , {
+		CreateCheck ('Visible only in Combat', 'cursor;combat'),
+		CreateCheck ('Hide On Player Turning', 'cursor;hidePlayerTurn'),
+		CreateCheck ('Hide On Player Looking', 'cursor;hidePlayerLook'),
+	}),
 	CreateCheck ( 'Move to Background', 'cursor;background' ),
-	CreateCheck ( 'Visible only in Combat', 'cursor;combat' ),
 	CreateTitle ('Miscellaneous'),
 	CreateCheck ( 'Hide minimap Icon', 'minimapIcon;hide' ),
 	CreateCheck ( 'Enable test mode', 'testmode' ),

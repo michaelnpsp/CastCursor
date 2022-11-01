@@ -222,21 +222,8 @@ local function Setup(frame)
 	frame.radius = radius
 	frame.factor = (radius-cfg.thickness)/radius
 	frame.reverse = cfg.reverse
-	if frame.IsCursor then
-		if cfg.visible and cfg.combat then
-			frame:RegisterEvent('PLAYER_REGEN_ENABLED')
-			frame:RegisterEvent('PLAYER_REGEN_DISABLED')
-			frame:SetScript("OnEvent", function(self, event) RingSetShown(self,event=='PLAYER_REGEN_DISABLED'); end)
-			RingSetShown( frame, InCombatLockdown() )
-		else
-			frame:UnregisterAllEvents()
-			frame:SetScript("OnEvent", nil)
-			RingSetShown( frame, cfg.visible )
-		end
-	elseif not addon.testmode then
-		frame:SetScript("OnEvent", cfg.visible and OnEvent or nil)
-		frame:SetScript("OnUpdate", Update)
-		RingSetShown( frame, false )
+	if not addon.testmode then
+		frame:SetupRing()
 	end
 	return frame
 end
@@ -246,6 +233,12 @@ end
 --====================================================================
 
 local Cast = CreateFrame("Frame", nil, rootFrame)
+
+function Cast:SetupRing()
+	self:SetScript("OnEvent", self.db.visible and OnEvent or nil)
+	self:SetScript("OnUpdate", Update)
+	RingSetShown( self, false )
+end
 
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", "player")
@@ -292,6 +285,12 @@ Cast.UNIT_SPELLCAST_CHANNEL_UPDATE = Cast.UNIT_SPELLCAST_CHANNEL_START
 
 local GCD = CreateFrame("Frame", nil, rootFrame)
 
+function GCD:SetupRing()
+	self:SetScript("OnEvent", self.db.visible and OnEvent or nil)
+	self:SetScript("OnUpdate", Update)
+	RingSetShown( self, false )
+end
+
 GCD:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 GCD:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 function GCD:UNIT_SPELLCAST_START(event, unit, guid, spellID)
@@ -316,6 +315,43 @@ GCD.UNIT_SPELLCAST_INTERRUPTED = GCD.UNIT_SPELLCAST_STOP
 local Cursor = CreateFrame("Frame", nil, rootFrame)
 Cursor.IsCursor = true
 Cursor:Hide()
+
+function Cursor:SetupRing()
+	local cfg = self.db
+	self:UnregisterAllEvents()
+	if cfg.visible and (cfg.combat or cfg.hidePlayerTurn or cfg.hidePlayerLook) then
+		self:SetScript("OnEvent", OnEvent)
+		if cfg.hidePlayerTurn then
+			self:RegisterEvent('PLAYER_STARTED_TURNING')
+			self:RegisterEvent('PLAYER_STOPPED_TURNING')
+		end
+		if cfg.hidePlayerLook then
+			self:RegisterEvent('PLAYER_STARTED_LOOKING')
+			self:RegisterEvent('PLAYER_STOPPED_LOOKING')
+		end
+		if cfg.combat then
+			self:RegisterEvent('PLAYER_REGEN_ENABLED')
+			self:RegisterEvent('PLAYER_REGEN_DISABLED')
+		end
+		RingSetShown( self, not cfg.combat or InCombatLockdown() )
+	else
+		self:SetScript("OnEvent", nil)
+		RingSetShown( self, cfg.visible )
+	end
+end
+
+function Cursor:PLAYER_REGEN_DISABLED()
+	RingSetShown(self,true)
+end
+
+function Cursor:PLAYER_REGEN_ENABLED()
+	RingSetShown(self,false)
+end
+
+Cursor.PLAYER_STARTED_TURNING = Cursor.PLAYER_REGEN_ENABLED
+Cursor.PLAYER_STOPPED_TURNING = Cursor.PLAYER_REGEN_DISABLED
+Cursor.PLAYER_STARTED_LOOKING = Cursor.PLAYER_REGEN_ENABLED
+Cursor.PLAYER_STOPPED_LOOKING = Cursor.PLAYER_REGEN_DISABLED
 
 --====================================================================
 -- Run
