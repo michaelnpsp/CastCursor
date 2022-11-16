@@ -19,7 +19,7 @@ local next, unpack, floor, cos, sin, max, min = next, unpack, floor, cos, sin, m
 local isRetail = select(4, GetBuildInfo())>=30000
 
 local versionToc = GetAddOnMetadata(addonName,'Version')
-addon.versionToc = versionToc=='@project-version@' and 'Dev' or 'v'..versionToc
+addon.versionToc = versionToc=='\@project-version\@' and 'Dev' or 'v'..versionToc
 
 --====================================================================
 
