@@ -290,6 +290,7 @@ Cast.UNIT_SPELLCAST_CHANNEL_UPDATE = Cast.UNIT_SPELLCAST_CHANNEL_START
 local GCD = CreateFrame("Frame", nil, rootFrame)
 
 function GCD:SetupRing()
+	self.hideOnCast = self.db.hideOnCast
 	self:SetScript("OnEvent", self.db.visible and OnEvent or nil)
 	self:SetScript("OnUpdate", Update)
 	RingSetShown( self, false )
@@ -299,7 +300,7 @@ GCD:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 GCD:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 function GCD:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	local start, duration = GetSpellCooldown( isRetail and 61304 or spellID )
-	if duration>0 and (isRetail or duration<=1.51) then
+	if duration>0 and (isRetail or duration<=1.51) and not (self.hideOnCast and Cast:IsShown()) then
 		Start(self, GetTime() - start, duration )
 	end
 end

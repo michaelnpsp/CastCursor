@@ -227,6 +227,7 @@ local menu = {
 	CreateNumber( 'Radius', 'gcd;radius', 10, 50, 1, 20 ),
 	CreateNumber( 'Draw Layer', 'gcd;sublayer', 0, 1 ),
 	CreateMedia ( 'Ring Texture', 'gcd;texture', RINGS ),
+	CreateCheck ( 'Hide while Casting', 'gcd;hideOnCast' ),
 	CreateCheck ( 'Reverse Direction', 'gcd;reverse' ),
 	CreateCheck( 'Detach from Cursor', 'gcd;detach', toggleDetach ),
 	-- cursor
