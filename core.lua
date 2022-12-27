@@ -202,7 +202,11 @@ local function Setup(frame)
 	frame:SetAlpha(a or 1)
 	frame:SetFrameStrata( cfg.background and "BACKGROUND" or "TOOLTIP" )
 	frame:ClearAllPoints()
-	frame:SetPoint('CENTER', rootFrame, 'CENTER', 0, 0)
+	if cfg.detach then
+		frame:SetPoint('CENTER', UIParent, 'CENTER', cfg.offsetx or 0, cfg.offsety  or 0)
+	else
+		frame:SetPoint('CENTER', rootFrame, 'CENTER', 0, 0)
+	end
 	frame:SetSize(radius*2, radius*2)
 	frame.textures = frame.textures or {}
 	local hide = ( not addon.testmode or not cfg.visible ) and not frame.IsCursor
