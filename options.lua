@@ -276,11 +276,21 @@ local CastCursorLDB = LibStub("LibDataBroker-1.1", true):NewDataObject("CastCurs
 --==========================================================================
 
 function addon:InitOptions()
+	-- libDBIcon
 	local icon = LibStub("LibDBIcon-1.0")
 	if icon then
 		icon:Register("CastCursor", CastCursorLDB, self.db.minimapIcon)
 		addon.minimapIcon = icon
 	end
+	-- blizzard compartment
+	if AddonCompartmentFrame and AddonCompartmentFrame.RegisterAddon then 
+		AddonCompartmentFrame:RegisterAddon({
+			text = "CastCursor",
+			icon  = "Interface\\AddOns\\CastCursor\\media\\icon.tga",
+			registerForAnyClick = true,
+			func = function() addon:ShowMenu() end,
+		})
+	end 
 	self.InitOptions = nil
 end
 
