@@ -7,6 +7,7 @@
 ## Title: CastCursor
 ## Notes: Cast & GCD ring around the Cursor
 ## Author: MiCHaEL
+## IconTexture: Interface/AddOns/CastCursor/media/icon.tga
 ## X-Curse-Project-ID: 305957
 ## X-Wago-ID: 9rN4Er6D
 ## SavedVariablesPerCharacter: CastCursorDB
