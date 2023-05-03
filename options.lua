@@ -287,6 +287,7 @@ function addon:InitOptions()
 		AddonCompartmentFrame:RegisterAddon({
 			text = "CastCursor",
 			icon  = "Interface\\AddOns\\CastCursor\\media\\icon.tga",
+			notCheckable = true,
 			registerForAnyClick = true,
 			func = function() addon:ShowMenu() end,
 		})
