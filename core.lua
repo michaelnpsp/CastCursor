@@ -14,6 +14,7 @@ local UnitCastingInfo = UnitCastingInfo or CastingInfo
 local UnitChannelInfo = UnitChannelInfo or ChannelInfo
 local GetSpellCooldown = GetSpellCooldown
 local GetCursorPosition = GetCursorPosition
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local next, unpack, floor, cos, sin, max, min = next, unpack, floor, cos, sin, max, min
 
 local isRetail = select(4, GetBuildInfo())>=30000
