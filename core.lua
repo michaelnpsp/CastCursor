@@ -14,10 +14,12 @@ local UnitCastingInfo = UnitCastingInfo or CastingInfo
 local UnitChannelInfo = UnitChannelInfo or ChannelInfo
 local GetSpellCooldown = GetSpellCooldown
 local GetCursorPosition = GetCursorPosition
+local GetUnitEmpowerHoldAtMaxTime = GetUnitEmpowerHoldAtMaxTime
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local next, unpack, floor, cos, sin, max, min = next, unpack, floor, cos, sin, max, min
 
 local isRetail = select(4, GetBuildInfo())>=30000
+local isDragon = select(4, GetBuildInfo())>=100000
 
 local versionToc = GetAddOnMetadata(addonName,'Version')
 addon.versionToc = versionToc=='\@project-version\@' and 'Dev' or 'v'..versionToc
@@ -262,6 +264,10 @@ Cast:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
+if isDragon then
+	Cast:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_STOP", "player")
+end
+
 function Cast:UNIT_SPELLCAST_STOP(event, unit, castID)
 	if castID == self.castID then
 		RingSetShown( self, false )
@@ -270,19 +276,30 @@ end
 Cast.UNIT_SPELLCAST_FAILED = Cast.UNIT_SPELLCAST_STOP
 Cast.UNIT_SPELLCAST_INTERRUPTED = Cast.UNIT_SPELLCAST_STOP
 Cast.UNIT_SPELLCAST_CHANNEL_STOP = Cast.UNIT_SPELLCAST_STOP
+Cast.UNIT_SPELLCAST_EMPOWER_STOP = Cast.UNIT_SPELLCAST_STOP
 
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
 Cast:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", "player")
+if isDragon then
+	Cast:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_START", "player")
+	Cast:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_UPDATE", "player")
+end
+
 function Cast:UNIT_SPELLCAST_CHANNEL_START(event, unit)
-	local name, _, _, start, finish = UnitChannelInfo("player")
+	local name, _, _, start, finish, _, _, _ ,_ , stages = UnitChannelInfo("player")
 	if name then
 		self.castID = nil
+		if isDragon and stages>0 then -- charged spell
+			finish = finish + GetUnitEmpowerHoldAtMaxTime("player")
+		end		
 		Start(self, GetTime() - start/1000, (finish - start) / 1000 )
 	else
 		RingSetShown( self, false )
 	end
 end
 Cast.UNIT_SPELLCAST_CHANNEL_UPDATE = Cast.UNIT_SPELLCAST_CHANNEL_START
+Cast.UNIT_SPELLCAST_EMPOWER_START = Cast.UNIT_SPELLCAST_CHANNEL_START
+Cast.UNIT_SPELLCAST_EMPOWER_UPDATE = Cast.UNIT_SPELLCAST_CHANNEL_START
 
 --====================================================================
 -- GCD Ring
