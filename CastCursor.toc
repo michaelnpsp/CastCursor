@@ -2,7 +2,7 @@
 ## Interface-Retail: 100107
 ## Interface-Classic: 11404
 ## Interface-BCC: 20504
-## Interface-Wrath: 30402
+## Interface-Wrath: 30403
 ## Version: @project-version@
 ## Title: CastCursor
 ## Notes: Cast & GCD ring around the Cursor
