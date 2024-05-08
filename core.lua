@@ -121,18 +121,20 @@ end )
 
 local ringsVisible = {}
 local function RingSetShown(self, visible)
-	if visible then
-		if not next(ringsVisible) then
-			rootFrame:Show()
+	if self then
+		if visible then
+			if not next(ringsVisible) then
+				rootFrame:Show()
+			end
+			ringsVisible[self] = true
+			self:Show()
+		else
+			ringsVisible[self] = nil
+			if not next(ringsVisible) then
+				rootFrame:Hide()
+			end
+			self:Hide()
 		end
-		ringsVisible[self] = true
-		self:Show()
-	else
-		ringsVisible[self] = nil
-		if not next(ringsVisible) then
-			rootFrame:Hide()
-		end
-		self:Hide()
 	end
 end
 
@@ -162,6 +164,7 @@ local function Start(self, d, m)
 	self.dur  = max(d,0)
 	self.max  = m
 	RingSetShown(self, true)
+	RingSetShown(self.hideOnCastRing, false)
 end
 
 local function Update(self, elapsed)
@@ -291,7 +294,7 @@ function Cast:UNIT_SPELLCAST_CHANNEL_START(event, unit)
 		self.castID = nil
 		if isDragon and stages>0 then -- charged spell
 			finish = finish + GetUnitEmpowerHoldAtMaxTime("player")
-		end		
+		end
 		Start(self, GetTime() - start/1000, (finish - start) / 1000 )
 	else
 		RingSetShown( self, false )
@@ -309,6 +312,7 @@ local GCD = CreateFrame("Frame", nil, rootFrame)
 
 function GCD:SetupRing()
 	self.hideOnCast = self.db.hideOnCast
+	Cast.hideOnCastRing = self.hideOnCast and self or nil
 	self:SetScript("OnEvent", self.db.visible and OnEvent or nil)
 	self:SetScript("OnUpdate", Update)
 	RingSetShown( self, false )
