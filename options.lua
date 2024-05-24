@@ -14,6 +14,8 @@ local RINGS = {
 	['flat double'] = RINGS_PATH..'ring5',
 }
 
+local COLOR_PICKER_INVERTED = (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE)
+
 --==========================================================================
 -- Refresh Addon Settings
 --==========================================================================
@@ -71,7 +73,13 @@ end
 
 local function get_color(key)
 	local r, g, b, a = unpack( get(key) )
-	return r, g, b, 1-a
+	return r, g, b, COLOR_PICKER_INVERTED and (1-a) or a
+end
+
+local function fix_color(color)
+	if COLOR_PICKER_INVERTED then
+		color[4] = 1 - color[4]
+	end
 end
 
 local function set(key,value)
@@ -121,6 +129,8 @@ local function CreateExec(text, key, func, disabled)
 	return { text = text, value = key, func = func, disable = disabled, notCheckable = true, keepShownOnClick=1 }
 end
 
+--
+
 local function CreateColor( text, key )
 	return  {
 		notCheckable= true, hasColorSwatch = true, hasOpacity= true,
@@ -133,12 +143,23 @@ local function CreateColor( text, key )
 		end,
 		opacityFunc= function()
 			local color = get(key)
-			color[4] = 1 - OpacitySliderFrame:GetValue()
+			if ColorPickerFrame.SetupColorPickerAndShow then -- 10.2.5
+				color[4] = ColorPickerFrame:GetColorAlpha()
+			else
+				color[4] = OpacitySliderFrame:GetValue()
+			end
+			fix_color(color)
 			RefreshAddon( strsplit(";",key) )
 		end,
 		cancelFunc = function(c)
 			local color = get(key)
-			color[1], color[2], color[3], color[4] = c.r, c.g, c.b, 1-c.opacity
+			if ColorPickerFrame.SetupColorPickerAndShow then -- 10.2.5
+				color[1], color[2], color[3], color[4] = ColorPickerFrame:GetPreviousValues()
+			else
+				color[1], color[2], color[3], color[4] = c.r, c.g, c.b, c.opacity
+			end
+			fix_color(color)
+			RefreshAddon( strsplit(";",key) )
 		end,
 	}
 end
@@ -283,7 +304,7 @@ function addon:InitOptions()
 		addon.minimapIcon = icon
 	end
 	-- blizzard compartment
-	if AddonCompartmentFrame and AddonCompartmentFrame.RegisterAddon then 
+	if AddonCompartmentFrame and AddonCompartmentFrame.RegisterAddon then
 		AddonCompartmentFrame:RegisterAddon({
 			text = "CastCursor",
 			icon  = "Interface\\AddOns\\CastCursor\\media\\icon.tga",
@@ -291,7 +312,7 @@ function addon:InitOptions()
 			registerForAnyClick = true,
 			func = function() addon:ShowMenu() end,
 		})
-	end 
+	end
 	self.InitOptions = nil
 end
 
