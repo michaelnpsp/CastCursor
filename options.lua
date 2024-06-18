@@ -278,6 +278,8 @@ end
 -- Databroker icon
 --==========================================================================
 
+local GetAddOnInfo = C_AddOns and C_AddOns.GetAddOnInfo or GetAddOnInfo
+
 local CastCursorLDB = LibStub("LibDataBroker-1.1", true):NewDataObject("CastCursor", {
 	type  = "launcher",
 	label = GetAddOnInfo("CastCursor", "Title"),

@@ -12,7 +12,6 @@ local UIParent = UIParent
 local GetTime = GetTime
 local UnitCastingInfo = UnitCastingInfo or CastingInfo
 local UnitChannelInfo = UnitChannelInfo or ChannelInfo
-local GetSpellCooldown = GetSpellCooldown
 local GetCursorPosition = GetCursorPosition
 local GetUnitEmpowerHoldAtMaxTime = GetUnitEmpowerHoldAtMaxTime
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
@@ -23,6 +22,15 @@ local isDragon = select(4, GetBuildInfo())>=100000
 
 local versionToc = GetAddOnMetadata(addonName,'Version')
 addon.versionToc = versionToc=='\@project-version\@' and 'Dev' or 'v'..versionToc
+
+--====================================================================
+
+local GetSpellCooldown = GetSpellCooldown or function(spellID)
+	local info = C_Spell.GetSpellCooldown(spellID)
+	if info then
+		return info.startTime, info.duration, info.isEnabled, info.modRate
+	end
+end
 
 --====================================================================
 
