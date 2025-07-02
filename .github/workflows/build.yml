@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       retail:
-		  type: boolean
+        type: boolean
         description: Retail
       mists:
         type: boolean
