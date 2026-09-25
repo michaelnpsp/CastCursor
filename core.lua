@@ -10,6 +10,7 @@ local addon = CreateFrame("Frame", "CastCursor", UIParent, "UIDropDownMenuTempla
 
 local UIParent = UIParent
 local GetTime = GetTime
+local issecretvalue = issecretvalue
 local UnitCastingInfo = UnitCastingInfo or CastingInfo
 local UnitChannelInfo = UnitChannelInfo or ChannelInfo
 local GetCursorPosition = GetCursorPosition
@@ -17,8 +18,10 @@ local GetUnitEmpowerHoldAtMaxTime = GetUnitEmpowerHoldAtMaxTime
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local next, unpack, floor, cos, sin, max, min = next, unpack, floor, cos, sin, max, min
 
-local isRetail = select(4, GetBuildInfo())>=30000
-local isDragon = select(4, GetBuildInfo())>=100000
+local versionCli = select(4, GetBuildInfo())
+local isForever = versionCli>=16000 and versionCli<20000
+local isRetail = versionCli>=30000
+local isDragon = versionCli>=100000
 
 local versionToc = GetAddOnMetadata(addonName,'Version')
 addon.versionToc = versionToc=='\@project-version\@' and 'Dev' or 'v'..versionToc
@@ -28,7 +31,7 @@ addon.versionToc = versionToc=='\@project-version\@' and 'Dev' or 'v'..versionTo
 local GetSpellCooldown = GetSpellCooldown or function(spellID)
 	local info = C_Spell.GetSpellCooldown(spellID)
 	if info then
-		return info.startTime, info.duration, info.isEnabled, info.modRate
+		return info.startTime, info.duration, info.isOnGCD
 	end
 end
 
@@ -329,7 +332,11 @@ end
 GCD:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 GCD:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 function GCD:UNIT_SPELLCAST_START(event, unit, guid, spellID)
-	local start, duration = GetSpellCooldown( isRetail and 61304 or spellID )
+	local start, duration, gcd = GetSpellCooldown( isRetail and 61304 or spellID )
+	if isForever and issecretvalue(duration) then
+		start = GetTime()
+		duration = gcd and 1.5 or 0
+	end
 	if duration>0 and (isRetail or duration<=1.51) and not (self.hideOnCast and Cast:IsShown()) then
 		Start(self, GetTime() - start, duration )
 	end
